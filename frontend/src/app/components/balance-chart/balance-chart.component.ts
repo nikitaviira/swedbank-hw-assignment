@@ -96,6 +96,9 @@ export class BalanceChartComponent implements OnDestroy {
             borderColor: 'rgba(255,255,255,0.1)',
             borderWidth: 1,
             padding: 10,
+            callbacks: {
+              label: (item) => Number(item.raw).toFixed(2),
+            },
           },
         },
         scales: {
@@ -106,7 +109,11 @@ export class BalanceChartComponent implements OnDestroy {
           },
           y: {
             grid: { color: 'rgba(255,255,255,0.05)' },
-            ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 11 } },
+            ticks: {
+              color: 'rgba(255,255,255,0.35)',
+              font: { size: 11 },
+              callback(value) { return Number(value).toFixed(2); },
+            },
             border: { display: false },
           },
         },
