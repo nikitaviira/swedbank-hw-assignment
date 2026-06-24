@@ -9,6 +9,7 @@ export const {
   selectLoading: selectAccountDetailLoading,
   selectLoadingMore: selectAccountDetailLoadingMore,
   selectError: selectAccountDetailError,
+  selectSelectedTransaction,
 } = accountDetailFeature;
 
 export const selectAccountDetailIsLast = createSelector(

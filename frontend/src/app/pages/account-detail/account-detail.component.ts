@@ -6,7 +6,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
 import { Transaction } from '../../models/transaction.model';
-import { loadAccountDetail, loadMoreTransactions } from '../../store/account-detail/account-detail.actions';
+import { loadAccountDetail, loadMoreTransactions, selectTransaction } from '../../store/account-detail/account-detail.actions';
 import {
   selectAccountDetail,
   selectAccountDetailIsLast,
@@ -60,7 +60,9 @@ import { BalanceChartComponent } from '../../components/balance-chart/balance-ch
           } @else {
             <div class="tx-list">
               @for (tx of transactions(); track tx.id) {
-                <div class="tx-row">
+                <a class="tx-row"
+                   [routerLink]="['/accounts', account()?.id, 'transactions', tx.id]"
+                   (click)="onSelectTransaction(tx)">
                   <div class="tx-icon" [class]="'tx-icon--' + tx.type.toLowerCase()">
                     {{ tx.type === 'DEBIT' ? '−' : '+' }}
                   </div>
@@ -71,7 +73,7 @@ import { BalanceChartComponent } from '../../components/balance-chart/balance-ch
                   <div class="tx-amount" [class]="'tx-amount--' + tx.type.toLowerCase()">
                     {{ tx.type === 'DEBIT' ? '−' : '+' }}{{ tx.amount | number: '1.2-2' }}
                   </div>
-                </div>
+                </a>
               }
             </div>
             @if (loadingMore()) {
@@ -203,6 +205,17 @@ import { BalanceChartComponent } from '../../components/balance-chart/balance-ch
         gap: 0.875rem;
         padding: 0.875rem 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.15s;
+        border-radius: 6px;
+        margin: 0 -0.5rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+
+      .tx-row:hover {
+        background: rgba(255, 255, 255, 0.04);
       }
 
       .tx-row:last-child {
@@ -317,6 +330,10 @@ export class AccountDetailComponent implements OnInit {
     if (scrolled >= document.documentElement.scrollHeight - 300) {
       this.store.dispatch(loadMoreTransactions({ accountId: this.accountId }));
     }
+  }
+
+  onSelectTransaction(tx: Transaction): void {
+    this.store.dispatch(selectTransaction({ transaction: tx }));
   }
 
   ngOnInit(): void {

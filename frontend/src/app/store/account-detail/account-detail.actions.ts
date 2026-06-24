@@ -24,3 +24,8 @@ export const loadMoreTransactionsFailure = createAction(
   '[Account Detail] Load More Transactions Failure',
   props<{ error: string }>()
 );
+
+export const selectTransaction = createAction(
+  '[Account Detail] Select Transaction',
+  props<{ transaction: Transaction }>()
+);

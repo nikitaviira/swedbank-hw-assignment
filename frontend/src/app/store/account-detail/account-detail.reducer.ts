@@ -4,6 +4,7 @@ import { Transaction } from '../../models/transaction.model';
 import {
   loadAccountDetail, loadAccountDetailFailure, loadAccountDetailSuccess,
   loadMoreTransactions, loadMoreTransactionsFailure, loadMoreTransactionsSuccess,
+  selectTransaction,
 } from './account-detail.actions';
 
 export interface AccountDetailState {
@@ -14,6 +15,7 @@ export interface AccountDetailState {
   loading: boolean;
   loadingMore: boolean;
   error: string | null;
+  selectedTransaction: Transaction | null;
 }
 
 const initialState: AccountDetailState = {
@@ -24,6 +26,7 @@ const initialState: AccountDetailState = {
   loading: false,
   loadingMore: false,
   error: null,
+  selectedTransaction: null,
 };
 
 export const accountDetailFeature = createFeature({
@@ -48,5 +51,6 @@ export const accountDetailFeature = createFeature({
       loadingMore: false,
     })),
     on(loadMoreTransactionsFailure, (state, { error }) => ({ ...state, error, loadingMore: false })),
+    on(selectTransaction, (state, { transaction }) => ({ ...state, selectedTransaction: transaction })),
   ),
 });
