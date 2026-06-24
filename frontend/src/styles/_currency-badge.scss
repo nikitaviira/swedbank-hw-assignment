@@ -1,0 +1,18 @@
+.currency-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--badge-size, 2.25rem);
+  height: var(--badge-size, 2.25rem);
+  border-radius: 50%;
+  font-size: var(--badge-font-size, 0.6875rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.currency-badge[data-currency="EUR"] { background: rgba(255, 214, 0, 0.12);  color: #ffd600; }
+.currency-badge[data-currency="USD"] { background: rgba(52, 199, 89, 0.12);  color: #34c759; }
+.currency-badge[data-currency="GBP"] { background: rgba(10, 132, 255, 0.12); color: #0a84ff; }
+.currency-badge[data-currency="SEK"] { background: rgba(255, 149, 0, 0.12);  color: #ff9500; }
+.currency-badge[data-currency="VND"] { background: rgba(255, 59, 48, 0.12);  color: #ff3b30; }

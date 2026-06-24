@@ -1,16 +1,20 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { AsyncPipe, DecimalPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
 import { loadAccounts } from '../../store/accounts/accounts.actions';
 import { selectAccounts, selectAccountsError, selectAccountsLoading } from '../../store/accounts/accounts.selectors';
+import { ErrorBannerComponent } from '../../components/error-banner/error-banner.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [AsyncPipe, DecimalPipe],
+  imports: [AsyncPipe, DecimalPipe, RouterLink, ErrorBannerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="home">
+      <app-error-banner [message]="error()" (dismissed)="dismiss()" />
       <header class="home-header">
         <h1 class="home-title">Accounts</h1>
         @if ((accounts$ | async); as accounts) {
@@ -26,11 +30,6 @@ import { selectAccounts, selectAccountsError, selectAccountsLoading } from '../.
             <div class="spinner"></div>
             <span>Loading accounts…</span>
           </div>
-        } @else if (error$ | async; as error) {
-          <div class="state-message error">
-            <span class="error-icon">!</span>
-            <span>{{ error }}</span>
-          </div>
         } @else if ((accounts$ | async); as accounts) {
           @if (accounts.length === 0) {
             <div class="state-message">
@@ -39,7 +38,7 @@ import { selectAccounts, selectAccountsError, selectAccountsLoading } from '../.
           } @else {
             <div class="accounts-grid">
               @for (account of accounts; track account.id) {
-                <div class="account-card">
+                <a class="account-card" [routerLink]="['/accounts', account.id]">
                   <div class="card-top">
                     <div class="currency-badge" [attr.data-currency]="account.currency">
                       {{ account.currency }}
@@ -50,7 +49,7 @@ import { selectAccounts, selectAccountsError, selectAccountsLoading } from '../.
                     <span class="balance">{{ account.balance | number:'1.2-2' }}</span>
                     <span class="currency-label">{{ account.currency }}</span>
                   </div>
-                </div>
+                </a>
               }
             </div>
           }
@@ -102,23 +101,6 @@ import { selectAccounts, selectAccountsError, selectAccountsLoading } from '../.
       justify-content: center;
     }
 
-    .state-message.error {
-      color: #f87171;
-    }
-
-    .error-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.5rem;
-      height: 1.5rem;
-      border-radius: 50%;
-      background: rgba(248,113,113,0.15);
-      font-size: 0.8rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
     .spinner {
       width: 1.25rem;
       height: 1.25rem;
@@ -146,11 +128,14 @@ import { selectAccounts, selectAccountsError, selectAccountsLoading } from '../.
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, background 0.2s;
+      text-decoration: none;
+      cursor: pointer;
     }
 
     .account-card:hover {
-      border-color: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.14);
+      background: #242a3d;
     }
 
     .card-top {
@@ -158,25 +143,6 @@ import { selectAccounts, selectAccountsError, selectAccountsLoading } from '../.
       align-items: center;
       gap: 0.875rem;
     }
-
-    .currency-badge {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.25rem;
-      height: 2.25rem;
-      border-radius: 50%;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      flex-shrink: 0;
-    }
-
-    .currency-badge[data-currency="EUR"] { background: rgba(255,214,0,0.12); color: #ffd600; }
-    .currency-badge[data-currency="USD"] { background: rgba(52,199,89,0.12); color: #34c759; }
-    .currency-badge[data-currency="GBP"] { background: rgba(10,132,255,0.12); color: #0a84ff; }
-    .currency-badge[data-currency="SEK"] { background: rgba(255,149,0,0.12); color: #ff9500; }
-    .currency-badge[data-currency="VND"] { background: rgba(255,59,48,0.12); color: #ff3b30; }
 
     .iban {
       font-size: 0.875rem;
@@ -212,7 +178,14 @@ export class HomeComponent implements OnInit {
 
   accounts$ = this.store.select(selectAccounts);
   loading$ = this.store.select(selectAccountsLoading);
-  error$ = this.store.select(selectAccountsError);
+
+  private readonly navError = signal<string | null>((history.state as { error?: string })?.error ?? null);
+  private readonly storeError = toSignal(this.store.select(selectAccountsError), { initialValue: null as string | null });
+  error = computed(() => this.navError() || this.storeError() || null);
+
+  dismiss(): void {
+    this.navError.set(null);
+  }
 
   ngOnInit(): void {
     this.store.dispatch(loadAccounts());
