@@ -13,9 +13,9 @@ import com.bank.exception.AccountNotFoundException;
 import com.bank.exception.DuplicateAccountException;
 import com.bank.exception.InsufficientFundsException;
 import com.bank.exception.InvalidOperationException;
-import com.bank.util.IbanGenerator;
 import com.bank.repository.AccountRepository;
 import com.bank.repository.TransactionRepository;
+import com.bank.util.IbanGenerator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -120,6 +120,12 @@ public class AccountService {
         targetAcc.setBalance(targetAcc.getBalance().add(convertedAmount));
         accountRepository.save(targetAcc);
         transactionRepository.save(new Transaction(targetAcc, convertedAmount, TransactionType.CREDIT, description, targetAcc.getBalance()));
+    }
+
+    public TransactionResponse getTransactionById(Long id) {
+        return transactionRepository.findById(id)
+            .map(TransactionResponse::from)
+            .orElseThrow(() -> new AccountNotFoundException(id));
     }
 
     public Page<TransactionResponse> getTransactions(Long accountId, Pageable pageable) {

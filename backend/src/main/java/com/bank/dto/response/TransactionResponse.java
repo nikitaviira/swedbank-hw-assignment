@@ -6,7 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record TransactionResponse(Long id, Long accountId, BigDecimal amount, TransactionType type,
-                                   String description, BigDecimal balanceAfter, LocalDateTime createdAt) {
+                                   String description, BigDecimal balanceAfter, LocalDateTime createdAt,
+                                   String currency) {
     public static TransactionResponse from(Transaction transaction) {
         return new TransactionResponse(
             transaction.getId(),
@@ -15,7 +16,8 @@ public record TransactionResponse(Long id, Long accountId, BigDecimal amount, Tr
             transaction.getType(),
             transaction.getDescription(),
             transaction.getBalanceAfter(),
-            transaction.getCreatedAt()
+            transaction.getCreatedAt(),
+            transaction.getAccount().getCurrency().name()
         );
     }
 }

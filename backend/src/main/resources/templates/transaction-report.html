@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: Helvetica, Arial, sans-serif; color: #1a1a1a; margin: 40px; }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .subtitle { font-size: 11px; color: #888; margin-bottom: 32px; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 10px 0; border-bottom: 1px solid #e5e5e5; font-size: 13px; }
+    td:first-child { color: #888; width: 40%; }
+    td:last-child { font-weight: 600; }
+    .credit { color: #16a34a; }
+    .debit  { color: #dc2626; }
+    .exchange { color: #4f46e5; }
+  </style>
+</head>
+<body>
+  <h1>Transaction Summary</h1>
+  <p class="subtitle" th:text="'Generated: ' + ${#temporals.format(#temporals.createNow(), 'dd MMM yyyy, HH:mm')}"></p>
+
+  <table>
+    <tr>
+      <td>Transaction ID</td>
+      <td th:text="'#' + ${tx.id}"></td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td th:text="${tx.description}"></td>
+    </tr>
+    <tr>
+      <td>Type</td>
+      <td th:text="${tx.type}"></td>
+    </tr>
+    <tr>
+      <td>Amount</td>
+      <td th:classappend="${tx.type.name().toLowerCase()}"
+          th:text="${#numbers.formatDecimal(tx.amount, 1, 2) + ' ' + tx.currency}"></td>
+    </tr>
+    <tr>
+      <td>Balance After</td>
+      <td th:text="${#numbers.formatDecimal(tx.balanceAfter, 1, 2)}"></td>
+    </tr>
+    <tr>
+      <td>Date</td>
+      <td th:text="${#temporals.format(tx.createdAt, 'dd MMM yyyy, HH:mm')}"></td>
+    </tr>
+  </table>
+</body>
+</html>
