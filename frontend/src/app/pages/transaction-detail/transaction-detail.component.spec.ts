@@ -13,7 +13,6 @@ const mockTx: Transaction = {
   description: 'Salary',
   balanceAfter: 1500.00,
   createdAt: '2024-03-15T09:30:00',
-  currency: 'EUR',
 };
 
 const stateWith = (tx: Transaction | null) => ({
