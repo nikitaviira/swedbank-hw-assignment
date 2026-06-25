@@ -5,11 +5,15 @@ import com.bank.dto.request.CurrencyExchangeRequest;
 import com.bank.dto.request.MoneyOperationRequest;
 import com.bank.entity.Account;
 import com.bank.enums.Currency;
+import com.bank.dto.response.TransactionResponse;
+import com.bank.entity.Transaction;
+import com.bank.enums.TransactionType;
 import com.bank.exception.AccountNotFoundException;
 import com.bank.exception.DuplicateAccountException;
 import com.bank.exception.ExternalServiceException;
 import com.bank.exception.InsufficientFundsException;
 import com.bank.exception.InvalidOperationException;
+import com.bank.exception.TransactionNotFoundException;
 import com.bank.util.IbanGenerator;
 import com.bank.repository.AccountRepository;
 import com.bank.repository.TransactionRepository;
@@ -198,5 +202,29 @@ class AccountServiceTest {
         assertThatThrownBy(() -> accountService.exchange(99L,
                 new CurrencyExchangeRequest("USD", new BigDecimal("50"))))
             .isInstanceOf(AccountNotFoundException.class);
+    }
+
+    @Test
+    void getTransactionById_found_returnsResponse() {
+        Account account = new Account(Currency.EUR, TEST_IBAN);
+        Transaction tx = new Transaction(account, new BigDecimal("50"), TransactionType.CREDIT, "deposit", new BigDecimal("150"));
+        when(transactionRepository.findById(1L)).thenReturn(Optional.of(tx));
+
+        TransactionResponse response = accountService.getTransactionById(1L);
+
+        assertThat(response.amount()).isEqualByComparingTo(new BigDecimal("50"));
+        assertThat(response.type()).isEqualTo(TransactionType.CREDIT);
+        assertThat(response.description()).isEqualTo("deposit");
+        assertThat(response.balanceAfter()).isEqualByComparingTo(new BigDecimal("150"));
+        assertThat(response.currency()).isEqualTo("EUR");
+    }
+
+    @Test
+    void getTransactionById_notFound_throwsException() {
+        when(transactionRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> accountService.getTransactionById(99L))
+            .isInstanceOf(TransactionNotFoundException.class)
+            .hasMessageContaining("99");
     }
 }
