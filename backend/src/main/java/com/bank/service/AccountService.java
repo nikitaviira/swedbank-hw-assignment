@@ -9,10 +9,7 @@ import com.bank.entity.Account;
 import com.bank.entity.Transaction;
 import com.bank.enums.Currency;
 import com.bank.enums.TransactionType;
-import com.bank.exception.AccountNotFoundException;
-import com.bank.exception.DuplicateAccountException;
-import com.bank.exception.InsufficientFundsException;
-import com.bank.exception.InvalidOperationException;
+import com.bank.exception.*;
 import com.bank.repository.AccountRepository;
 import com.bank.repository.TransactionRepository;
 import com.bank.util.IbanGenerator;
@@ -125,7 +122,7 @@ public class AccountService {
     public TransactionResponse getTransactionById(Long id) {
         return transactionRepository.findById(id)
             .map(TransactionResponse::from)
-            .orElseThrow(() -> new AccountNotFoundException(id));
+            .orElseThrow(() -> new TransactionNotFoundException(id));
     }
 
     public Page<TransactionResponse> getTransactions(Long accountId, Pageable pageable) {
