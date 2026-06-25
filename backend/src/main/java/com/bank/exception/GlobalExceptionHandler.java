@@ -55,8 +55,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, validationDetails, headers, HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler(AccountNotFoundException.class)
-    public ResponseEntity<Object> handleAccountNotFound(AccountNotFoundException ex, WebRequest request) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleNotFound(NotFoundException ex, WebRequest request) {
         CustomErrorDetails payload = new CustomErrorDetails(
                 LocalDateTime.now(),
                 ex.getMessage(),
